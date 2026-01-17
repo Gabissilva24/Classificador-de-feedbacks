@@ -26,14 +26,21 @@ def executar_suite_testes():
 
     for cenario in cenarios:
         frase = cenario["frase"]
+        # Tratamento: Padronização para busca de palavras-chave
+        frase_tratada = frase.lower()
+        
         traducao = tradutor.translate(frase)
         score = analisador.polarity_scores(traducao)['compound']
-        tem_critica = any(word in frase.lower() for word in palavras_negativas)
+        
+        # Verifica se existe alguma palavra critica na frase
+        tem_critica = any(word in frase_tratada for word in palavras_negativas)
 
-        # Logica de Classificacao (Threshold + Regra de Negocio)
-        if score > 0.05:
+        # Logica de classificacao
+        if tem_critica:
+            resultado = "NEGATIVO"
+        elif score > 0.05:
             resultado = "POSITIVO"
-        elif tem_critica or score < -0.05:
+        elif score < -0.05:
             resultado = "NEGATIVO"
         else:
             resultado = "NEUTRO"
